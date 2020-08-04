@@ -1,0 +1,170 @@
+var room = HBInit({ roomName: "⚪️⚫ Arena Hx ⚫⚪️", maxPlayers: 25, playerName : " Hx BOT ", public : true});
+room.setDefaultStadium("Classic");
+room.setScoreLimit(0);
+room.setTimeLimit(0);
+room.setTeamsLock(true);
+
+let specoff = false;
+
+// Se não há admins dá o admin para um dos jogadores restantes.
+function updateAdmins() {
+  // Lista todos os jogadores com exceção do host (ID = 0).
+  var players = room.getPlayerList().filter((player) => player.id != 0 );
+  if ( players.length == 0 ) return; // Nao há jogadores, nao faz nada.
+  if ( players.find((player) => player.admin) != null ) return; // Há um admin na sala.
+  room.setPlayerAdmin(players[0].id, true); // Dá admin para o primeiro não admin da sala.
+}
+
+room.onPlayerJoin = function(player) {
+  updateAdmins();
+}
+
+let lastPlayersKicked = [null, null]
+
+room.onPlayerBallKick = function(player) {
+    if(!lastPlayersKicked[0]) lastPlayersKicked[0] = player
+
+    if(lastPlayersKicked[0].id != player.id) {
+        lastPlayersKicked[1] = lastPlayersKicked[0]
+        lastPlayersKicked[0] = player
+    }
+}
+
+room.onTeamGoal = function(team) {
+
+    if(!lastPlayersKicked[0]) return false;
+
+    if(team == lastPlayersKicked[0].team) {
+        room.sendAnnouncement(`⚽ GOOOOOOLLL da Lenda ${lastPlayersKicked[0].name}`, null, 0x2BFF00, "small");
+        
+        if(lastPlayersKicked[1] && lastPlayersKicked[1].team == team && lastPlayersKicked[1].id != lastPlayersKicked[0].id) {   
+            room.sendAnnouncement(`🎩 Passe do Maestro  ${lastPlayersKicked[1].name}`, null, 0x00B3FF, "small", 0);
+        }
+    }else{
+        room.sendAnnouncement(`🤣 Gol contra de ${lastPlayersKicked[0].name}`, null, 0xA875FF, "small");
+    }
+
+}
+
+let afks = []
+
+let officialAsd = []
+let officialVip = []
+let officialVipD = []
+let officialJog = []
+let officialDire = []
+
+room.onPlayerChat = function (player, message) {
+	if (message == "!0104" ) { // Senha para logar como admin.
+		room.setPlayerAdmin(player.id, true); // Dá admin para o jogador que digitou a senha.
+		room.sendChat(" 💎 O ᴘʟᴀʏᴇʀ " + player.name + " ʟᴏɢᴏᴜ ᴄᴏᴍᴏ PROPRIETÁRIO Xirin®!👑 ");
+		officialAsd.push(player.id)
+        return false;
+	}	
+	if (message == "!admgeo" ) { // Senha para logar como admin.
+		room.setPlayerAdmin(player.id, true); // Dá admin para o jogador que digitou a senha.
+		room.sendChat(" 💎 O ᴘʟᴀʏᴇʀ " + player.name + " ʟᴏɢᴏᴜ Cᴏᴍ A Senha Do PROPRIETÁRIO Geozin 💎 ");
+		officialVipD.push(player.id)
+        return false;
+        }
+        if (message == "!Hyper" ) { // Senha para logar como admin.
+		room.setPlayerAdmin(player.id, true); // Dá admin para o jogador que digitou a senha.
+		room.sendChat(" 🎮 O ᴘʟᴀʏᴇʀ " + player.name + " ʟᴏɢᴏᴜ ᴄᴏᴍo Capitão ᴏғɪᴄɪᴀʟ da Hx ⚪️⚫ ");
+		officialVip.push(player.id)
+        return false;
+	}
+    if (message == "!ez" ) { // Senha para logar como admin.
+		room.setPlayerAdmin(player.id, true); // Dá admin para o jogador que digitou a senha.
+		room.sendChat(" 🎮 O ᴘʟᴀʏᴇʀ " + player.name + " ʟᴏɢᴏᴜ ᴄᴏᴍᴏ JOGADOR ᴏғɪᴄɪᴀʟ ᴅᴀ Hx 🎮 ");
+		officialJog.push(player.id)
+        return false;
+        }
+	if (message == "!limpar" && player.admin ) { // Comando para retirar os banimentos da sala.
+		room.clearBans();
+		room.sendChat( " Nᴀ̃ᴏ ʜᴀ́ ᴍᴀɪs ᴘʟᴀʏᴇʀs ʙᴀɴɪᴅᴏs﹗ 🔫 " );
+        return false;
+	}
+	if (message == "!fechar" && player.admin ) { // Comando para definir uma senha para a sala.
+		room.setPassword("hxhx"); // "sala" é a nova senha da sala.
+		room.sendChat( " A sᴀʟᴀ ғᴏɪ ᴛʀᴀɴᴄᴀᴅᴀ ᴄᴏᴍ sᴜᴄᴇssᴏ﹗ 🔒 " );
+        return false;
+	}
+	if (message == "!abrir" && player.admin ){ // Comando para retirar senha da sala.
+		room.setPassword(); // como não há nada entre os parenteses a senha está em branco e isso é igual a não ter senha.
+		room.sendChat(" A sᴀʟᴀ ғᴏɪ ᴀʙᴇʀᴛᴀ ᴄᴏᴍ sᴜᴄᴇssᴏ﹗ 🔓 ");
+        return false;
+	}
+    if (message == "!help" ) { // Senha para logar como admin.
+		room.sendChat(" 🔗 Os ᴄᴏᴍᴀɴᴅᴏs ᴀᴛᴜᴀɪs sᴀ̃ᴏ﹕  !afk, !helpadm 🔗 ");
+		return false;
+	}
+    if (message == "!helpadm" ) { // Senha para logar como admin.
+		room.sendChat(" 🔰 Os ᴄᴏᴍᴀɴᴅᴏs ᴅᴇ ᴀᴅᴍɪɴ sᴀ̃ᴏ﹕ ﹗ʟɪᴍᴘᴀʀ﹐ ﹗ғᴇᴄʜᴀʀ﹐ ﹗ᴀʙʀɪʀ. ");
+		return false;
+	}
+    if (message == "!unis" ) { // Comando para retirar senha da sala.
+		room.sendChat(" 👕 Os ᴜɴɪs sᴀ̃ᴏ﹕ ﹗HXR﹐ ﹗HXB﹐ 👕 ");
+        return false;
+	}
+    if (message == "!HX1" && player.admin ){ // Comando para retirar senha da sala.
+		room.sendChat("/colors red 60 FFFFFF 000000 000000 000000");
+        return false;
+    }
+    if (message == "!HX2" && player.admin ){ // Comando para retirar senha da sala.
+		room.sendChat("/colors blue 60 000000 FFFFFF FFFFFF FFFFFF");
+        return false;
+    }
+    if (message == "!afk") {
+        if (afks.includes(player.id)) {
+                afks.splice(afks.indexOf(player.id), 1)
+                room.sendAnnouncement(player.name + " não está mais afk.", null)
+            } else {
+                afks.push(player.id)
+                room.sendAnnouncement(player.name + " ficou afk.", null)
+                if (player.team != 0) {
+                    room.setPlayerTeam(player.id, 0);
+                }
+            }
+        }
+        
+    if (message == "!spec_off" && player.admin) {
+        specoff = true;
+        room.sendChat(" Os spectadores foram silenciados. 🔈 ");
+    } 
+    if (message == "!spec_on" && player.admin) {
+        specoff = false;
+        room.sendChat(" Os spectadores voltaram a falar 🔊 ");
+    }
+    if (officialAsd.includes(player.id)) {
+        room.sendAnnouncement("👑⌏ " + player.name + ": " + message, null, 0x00FFDD);
+        return false;
+    }
+    if (officialJog.includes(player.id)) {
+        room.sendAnnouncement("🎮⌏ " + player.name + ": " + message, null, 0xFF0000);
+        return false;
+    } 
+    if (officialVipD.includes(player.id)) {
+        room.sendAnnouncement("💎⌏ " + player.name + ": " + message, null, 0xFFFF00);
+        return false;
+    }
+    if (officialVip.includes(player.id)) {
+        room.sendAnnouncement("💎⌏ " + player.name + ": " + message, null, 0xFFFF00);
+        return false;
+    }
+    if (specoff && !player.admin) return false;
+}
+
+room.onPlayerLeave = function(player) {
+  updateAdmins();
+}
+room.onPlayerJoin = function(player) {
+  room.sendAnnouncement("Bem vindo, " + player.name + "!", player.id);
+  updateAdmins()
+}
+
+room.onPlayerTeamChange = function(changedPlayer) {
+    if(afks.includes(changedPlayer.id)) {
+        room.setPlayerTeam(changedPlayer.id, 0)
+        room.sendAnnouncement(changedPlayer.name + " está afk.", null)
+    }
+}
